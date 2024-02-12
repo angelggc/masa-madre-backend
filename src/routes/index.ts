@@ -15,7 +15,7 @@ readdirSync(PATH_ROUTER).filter((filename) => {
     if (cleanName !== "index") {
         import(`./${cleanName}`).then((moduleRouter) => {
             console.log(`File import and loaded: ${cleanName}`)
-            router.use(`/${cleanName}`, moduleRouter.router)
+            router.use(`/api/v1/${cleanName}`, moduleRouter.router)
         })
     }
 })

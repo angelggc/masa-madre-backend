@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import Category from '../models/category';
+import { Request, Response } from "express";
+import Category from "../models/category";
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
@@ -25,7 +25,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return res.status(404).json({ message: "Categoría no encontrada" });
     }
     res.json(category);
   } catch (error: any) {
@@ -36,9 +36,13 @@ export const getCategoryById = async (req: Request, res: Response) => {
 export const updateCategory = async (req: Request, res: Response) => {
   try {
     const { productType, description } = req.body;
-    const category = await Category.findByIdAndUpdate(req.params.id, { productType, description }, { new: true });
+    const category = await Category.findByIdAndUpdate(
+      req.params.id,
+      { productType, description },
+      { new: true }
+    );
     if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return res.status(404).json({ message: "Categoría no encontrada" });
     }
     res.json(category);
   } catch (error: any) {
@@ -50,9 +54,9 @@ export const deleteCategory = async (req: Request, res: Response) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
     if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return res.status(404).json({ message: "Categoría no encontrada" });
     }
-    res.json({ message: 'Categoría eliminada correctamente' });
+    res.json({ message: "Categoría eliminada correctamente" });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
