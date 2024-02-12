@@ -6,7 +6,7 @@ import categoriesRouter from "./routes/category.routes";
 
 const PORT = process.env.PORT || 3050;
 
-const app = express();
+export const app = express();
 app.use(cors());
 app.use(express.json());
 dbConnect();
