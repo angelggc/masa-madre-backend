@@ -8,3 +8,4 @@ const categorySchema = new Schema({
 });
 
 const Category = model<ICategory>("Category", categorySchema);
+export default Category;
