@@ -15,4 +15,4 @@ router
   .put("/:id", updateCategory)
   .delete("/:id", deleteCategory);
 
-export { router };
+export default router;
