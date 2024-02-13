@@ -24,4 +24,4 @@ router.put("/categories/:id", updateCategory);
 // Ruta para eliminar una categoría
 router.delete("/categories/:id", deleteCategory);
 
-export { router };
+export default router;
