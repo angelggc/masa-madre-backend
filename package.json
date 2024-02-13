@@ -24,15 +24,15 @@
   },
   "name": "masa-madre-backend",
   "version": "1.0.0",
-  "main": "src/app.ts",
+  "main": "./src/app.ts",
   "scripts": {
-    "dev": "nodemon src/app.ts",
+    "dev": "nodemon ./src/app.ts",
     "build": "tsc",
     "start": "node ./dist/app.js",
     "test": "jest"
   },
   "keywords": [],
-  "author": "",
+  "author": "ClickArg Community",
   "license": "ISC",
   "description": ""
 }

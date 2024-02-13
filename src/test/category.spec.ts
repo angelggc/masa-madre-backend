@@ -1,6 +1,5 @@
 import request from "supertest";
 import { app } from "../app";
-import { ICategory } from "../entities/category";
 
 describe("Test a category", () => {
   test("La ruta funciona", async () => {
