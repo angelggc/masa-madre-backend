@@ -11,6 +11,6 @@ app.use(cors());
 app.use(express.json());
 dbConnect();
 app.use(categoryRoutes);
-app.listen(PORT, () => {
+export const server = app.listen(PORT, () => {
   console.log(`Server is running in ${PORT}`);
 });
