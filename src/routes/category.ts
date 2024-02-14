@@ -9,9 +9,9 @@ import {
 
 const router = Router();
 router
-  .get("/", getAllCategories)
-  .get("/:id", getCategoryById)
-  .post("/", createCategory)
+  .get("/categories", getAllCategories)
+  .get("/categories/:id", getCategoryById)
+  .post("/categories", createCategory)
   .put("/:id", updateCategory)
   .delete("/:id", deleteCategory);
 
