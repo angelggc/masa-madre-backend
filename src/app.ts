@@ -10,8 +10,8 @@ export const app = express();
 app.use(cors());
 app.use(express.json());
 dbConnect();
-app.use('/api/v1',categoryRoutes);
-app.use('/api/v1',productRoutes); 
+app.use("/api/v1", categoryRoutes);
+app.use("/api/v1", productRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running in ${PORT}`);
 });

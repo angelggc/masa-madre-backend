@@ -14,5 +14,5 @@ describe("db test", () => {
     const result = await Category.find();
     expect(result).toBeInstanceOf(Array);
     expect(result[0]).toBeInstanceOf(Object);
-  });
+  }, 10000);
 });
