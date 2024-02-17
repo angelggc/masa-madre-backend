@@ -12,7 +12,7 @@ router
   .get("/categories", getAllCategories)
   .get("/categories/:id", getCategoryById)
   .post("/categories", createCategory)
-  .put("/:id", updateCategory)
-  .delete("/:id", deleteCategory);
+  .put("/categories/:id", updateCategory)
+  .delete("/categories/:id", deleteCategory);
 
 export default router;
