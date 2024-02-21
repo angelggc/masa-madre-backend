@@ -39,7 +39,7 @@ describe("Test a product", () => {
     const id = result[0]._id.toString();
 
     await new Category({
-      productType: "prueba",
+      name: "prueba",
       description: "PRUEBA",
       products: [id],
     }).save();
@@ -57,7 +57,7 @@ describe("Test a product", () => {
     expect(status).toBe(200);
   }, 10000);
 
-  test("recive datos", async () => {
+  test("recibe datos", async () => {
     const response = await request(app).get("/products").send();
     expect(response.body).toBeInstanceOf(Array);
     expect(response.body).toHaveLength(2);

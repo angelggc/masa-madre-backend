@@ -2,7 +2,6 @@ import { Schema, model, Document } from "mongoose";
 import Category from "./category";
 
 export interface IProduct extends Document {
-  productType: any;
   name: string;
   ingredients: string[];
   image: string;
@@ -19,8 +18,8 @@ const productSchema = new Schema<IProduct>({
 });
 
 productSchema.post<IProduct>("save", async function (doc) {
-  // Busca la categoría correspondiente por el productType del producto
-  const category = await Category.findOne({ productType: doc.productType });
+  // Busca la categoría correspondiente por el name del producto
+  const category = await Category.findOne({ name: doc.name });
 
   // Si se encuentra la categoría, añade el ID del producto a su array de productos
   if (category) {

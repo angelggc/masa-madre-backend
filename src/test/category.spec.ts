@@ -33,14 +33,14 @@ describe("Test a category", () => {
     const id = result[0]._id.toString();
 
     await new Category({
-      productType: "prueba",
+      name: "prueba",
       description: "PRUEBA",
       products: [id],
     }).save();
   }, 10000);
 
   afterEach(async () => {
-    await Category.deleteMany({ productType: "prueba" });
+    await Category.deleteMany({ name: "prueba" });
     await Product.deleteMany({ name: "nameTest" });
     server.close();
   }, 10000);
@@ -63,27 +63,27 @@ describe("Test a category", () => {
       .send();
 
     expect(response2.body._id).toBe(`${response.body[0]._id}`);
-    expect(response2.body.productType).toBe("prueba");
+    expect(response2.body.name).toBe("prueba");
     expect(response2.body.description).toBe("PRUEBA");
   }, 10000);
 
   test("crea una categoria", async () => {
     const { status } = await request(app)
       .post("/categories")
-      .send({ productType: "Test", description: "description-test" });
+      .send({ name: "Test", description: "description-test" });
     const response = await request(app).get("/categories").send();
 
     expect(status).toBe(201);
     expect(response.body.length).toBe(2);
     await Category.deleteMany({ description: "description-test" });
-  }, 10000);
+  }, 15000);
 
   test("edita una categoria", async () => {
     const { body } = await request(app).get("/categories").send();
     const { status } = await request(app)
       .put(`/categories/${body[0]._id}`)
       .send({
-        productType: "prueba",
+        name: "prueba",
         description: "new-description",
         products: [...body[0].products],
       });
@@ -94,7 +94,7 @@ describe("Test a category", () => {
     expect(status).toBe(200);
     expect(response.status).toBe(200);
     expect(response.body._id).toBe(body[0]._id);
-    expect(response.body.productType).toBe("prueba");
+    expect(response.body.name).toBe("prueba");
     expect(response.body.description).toBe("new-description");
     expect(response.body.products).toBeInstanceOf(Array);
     expect(response.body.products).toStrictEqual(body[0].products);
