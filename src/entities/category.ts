@@ -1,7 +1,6 @@
-import { ProductType } from "./product-type";
 
 export interface ICategory extends Document {
-  productType: ProductType;
+  name: string;
   description: string;
   products: string[];
 }

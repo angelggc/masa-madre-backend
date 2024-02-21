@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import Category from "../models/category";
 
+
 export const createCategory = async (req: Request, res: Response) => {
   try {
-    const { productType, description } = req.body;
-    const category = new Category({ productType, description, products: [] });
+    const { name, description } = req.body;
+    const category = new Category({ name, description, products: [] });
     await category.save();
     res.status(201).json(category);
   } catch (error: any) {
@@ -35,10 +36,10 @@ export const getCategoryById = async (req: Request, res: Response) => {
 
 export const updateCategory = async (req: Request, res: Response) => {
   try {
-    const { productType, description, products } = req.body;
+    const { name, description, products } = req.body;
     const category = await Category.findByIdAndUpdate(
       req.params.id,
-      { productType, description, products },
+      { name, description, products },
       { new: true }
     );
     if (!category) {

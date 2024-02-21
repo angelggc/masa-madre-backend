@@ -9,10 +9,10 @@ import {
 
 const router = Router();
 router
-  .get("/", getAllCategories)
-  .get("/:id", getCategoryById)
-  .post("/", createCategory)
-  .put("/:id", updateCategory)
-  .delete("/:id", deleteCategory);
+  .get("/categories", getAllCategories)
+  .get("/categories/:id", getCategoryById)
+  .post("/categories", createCategory)
+  .put("/categories/:id", updateCategory)
+  .delete("/categories/:id", deleteCategory);
 
 export default router;
