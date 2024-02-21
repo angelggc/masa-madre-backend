@@ -51,6 +51,9 @@ describe("Test a category", () => {
 
   test("recibe datos", async () => {
     const response = await request(app).get("/categories").send();
+    expect(response.body[0]).toHaveProperty("_id");
+    expect(response.body[0]).toHaveProperty("name");
+    expect(response.body[0]).toHaveProperty("description");
     expect(response.body).toBeInstanceOf(Array);
   });
 
