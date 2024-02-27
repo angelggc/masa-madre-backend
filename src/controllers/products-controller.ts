@@ -18,10 +18,7 @@ export const createProduct = async (req: Request, res: Response) => {
       "Product" + "-" + Date.now() + path.extname(file.originalname)
     }`;
 
-    const urlImage = uploadFile(file, "products", fileName);
-
-    console.log("llego aca");
-    console.log(urlImage);
+    const urlImage = await uploadFile(file, "products", fileName);
 
     const newProduct: IProduct = new Product({
       name,

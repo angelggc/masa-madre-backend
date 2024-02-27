@@ -3,6 +3,7 @@ import {
   getDownloadURL,
   uploadBytesResumable,
   UploadResult,
+  deleteObject,
 } from "firebase/storage";
 import { storage } from "../middlewares/upload-middleware";
 import { Buffer } from "buffer";
@@ -35,4 +36,14 @@ const uploadFile = async (
   }
 };
 
-export { uploadFile };
+const deleteFile = async (folder: string, fileName: string) => {
+  try {
+    const imageRef = ref(storage, `${folder}/${fileName}`);
+    await deleteObject(imageRef);
+    return `Imagen ${fileName} en la carpeta ${folder} eliminada correctamente.`;
+  } catch (error) {
+    console.error("Error al eliminar la imagen:", error);
+  }
+};
+
+export { uploadFile, deleteFile };

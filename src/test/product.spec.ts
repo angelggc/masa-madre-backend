@@ -75,17 +75,15 @@ describe("Test a product", () => {
   }, 10000);
 
   test("crea un producto", async () => {
-    const buffer = Buffer.alloc(1024 * 1024, ".jpg");
     const result = await Category.find();
     const id = result[0]._id.toString();
     const result2 = await request(app)
       .post(`/${id}/products`)
-      .attach("image", buffer, "./ejemplo.jpg")
+      .attach("image", `${__dirname}/tmp/image.jpg`)
       .field("name", "nameTest3")
       .field("description", "descriptionTest3")
       .field("price", 0)
-      .field("ingredients", JSON.stringify(["ingrediente1", "ingrediente2"]));
-    console.log(result2);
+      .field("ingredients", ["ingrediente1", "ingrediente2"]);
     const response = await request(app).get("/products").send();
     expect(result2.status).toBe(201);
     expect(response.status).toBe(200);
