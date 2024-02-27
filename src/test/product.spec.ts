@@ -6,6 +6,7 @@ import { dbConnectTest } from "../config/db";
 import productRoutes from "../routes/product";
 import { Product } from "../models/product";
 import Category from "../models/category";
+import fs from "fs";
 
 const PORT = process.env.PORT || 3050;
 export const app = express();
@@ -74,19 +75,19 @@ describe("Test a product", () => {
   }, 10000);
 
   test("crea un producto", async () => {
+    const buffer = Buffer.alloc(1024 * 1024, ".jpg");
     const result = await Category.find();
     const id = result[0]._id.toString();
-    const { status } = await request(app)
+    const result2 = await request(app)
       .post(`/${id}/products`)
-      .send({
-        name: "nameTest3",
-        description: "descriptionTest3",
-        price: 0,
-        image: "imagen.png",
-        ingredients: ["ingrediente1", "ingrediente2"],
-      });
+      .attach("image", buffer, "./ejemplo.jpg")
+      .field("name", "nameTest3")
+      .field("description", "descriptionTest3")
+      .field("price", 0)
+      .field("ingredients", JSON.stringify(["ingrediente1", "ingrediente2"]));
+    console.log(result2);
     const response = await request(app).get("/products").send();
-    expect(status).toBe(201);
+    expect(result2.status).toBe(201);
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(3);
 
