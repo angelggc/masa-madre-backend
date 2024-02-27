@@ -18,13 +18,13 @@ const productSchema = new Schema<IProduct>({
 });
 
 productSchema.post<IProduct>("save", async function (doc) {
-  // Busca la categoría correspondiente por el name del producto
+  
   const category = await Category.findOne({ name: doc.name });
 
-  // Si se encuentra la categoría, añade el ID del producto a su array de productos
+  
   if (category) {
     category.products.push(doc._id);
-    await category.save(); // Guarda la categoría actualizada en la base de datos
+    await category.save();
   }
 });
 

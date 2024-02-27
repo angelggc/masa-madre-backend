@@ -28,8 +28,7 @@ var userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', async function (next) { 
-    if(!this.isModified('password')){ //evita volver a hashear el password cuando este no ha sido modificado 
-        next() 
+    if(!this.isModified('password')){
     } 
     this.password = await hash(this.password, 10); 
 }); 
