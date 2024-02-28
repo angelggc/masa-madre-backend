@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Product } from "../models/product";
 import { IProduct } from "../entities/product";
 import path from "path";
-import { File, uploadFile } from "../utils/utils-firebase";
+import { uploadFile } from "../utils/utils-firebase";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -18,14 +18,17 @@ export const createProduct = async (req: Request, res: Response) => {
       "Product" + "-" + Date.now() + path.extname(file.originalname)
     }`;
 
-    const urlImage = await uploadFile(file, "products", fileName);
+    const url = await uploadFile(file, "products", fileName);
 
-    const newProduct: IProduct = new Product({
+    const newProduct: IProduct = new Product(<IProduct>{
       name,
       ingredients,
       description,
       price,
-      image: urlImage,
+      image: {
+        fileName,
+        url,
+      },
     });
 
     const savedProduct = await newProduct.save();

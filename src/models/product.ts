@@ -5,7 +5,7 @@ import { IProduct } from "../entities/product";
 const productSchema = new Schema<IProduct>({
   name: { type: String, required: true },
   ingredients: [{ type: String, required: true }],
-  image: { type: String, required: true },
+  image: { fileName: { type: String }, url: { type: String } },
   description: { type: String },
   price: { type: Number, required: true },
 });

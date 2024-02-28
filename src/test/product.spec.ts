@@ -7,6 +7,7 @@ import productRoutes from "../routes/product";
 import { Product } from "../models/product";
 import Category from "../models/category";
 import fs from "fs";
+import { deleteFile } from "../utils/utils-firebase";
 
 const PORT = process.env.PORT || 3050;
 export const app = express();
@@ -23,7 +24,10 @@ describe("Test a product", () => {
     await new Product({
       name: "nameTest",
       ingredients: ["ingredients"],
-      image: "imagen.jpg",
+      image: {
+        fileName: "filename.jpg",
+        url: "img.com",
+      },
       description: "descriptionTest",
       price: 99,
     }).save();
@@ -31,7 +35,10 @@ describe("Test a product", () => {
     await new Product({
       name: "nameTest2",
       ingredients: ["ingredients2"],
-      image: "imagen.jpg",
+      image: {
+        fileName: "filename.jpg",
+        url: "img.com",
+      },
       description: "descriptionTest2",
       price: 99,
     }).save();
@@ -72,11 +79,13 @@ describe("Test a product", () => {
     expect(response.body._id).toBe(body[0]._id);
     expect(response.body.name.includes("nameTest")).toBe(true);
     expect(response.body.description.includes("descriptionTest")).toBe(true);
+    expect(response.body.image instanceof Object).toBe(true);
   }, 10000);
 
   test("crea un producto", async () => {
     const result = await Category.find();
     const id = result[0]._id.toString();
+
     const result2 = await request(app)
       .post(`/${id}/products`)
       .attach("image", `${__dirname}/tmp/image.jpg`)
@@ -84,11 +93,13 @@ describe("Test a product", () => {
       .field("description", "descriptionTest3")
       .field("price", 0)
       .field("ingredients", ["ingrediente1", "ingrediente2"]);
+
     const response = await request(app).get("/products").send();
     expect(result2.status).toBe(201);
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(3);
 
+    await deleteFile("products", result2.body.image.fileName);
     await Product.deleteMany({ name: "nameTest3" });
   }, 10000);
 
@@ -112,7 +123,7 @@ describe("Test a product", () => {
     expect(response.body.description).toBe("new descriptionTest");
     expect(response.body.ingredients).toHaveLength(2);
     expect(response.body.name).toBe("nameTest");
-    expect(response.body.image).toBe("imagen.jpg");
+    expect(response.body.image instanceof Object).toBe(true);
     expect(response.body.price).toBe(99);
   }, 10000);
 
