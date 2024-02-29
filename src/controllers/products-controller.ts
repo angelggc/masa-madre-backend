@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Product } from "../models/product";
 import { IProduct } from "../entities/product";
 import path from "path";
-import { uploadFile } from "../utils/utils-firebase";
+import { deleteFile, uploadFile } from "../utils/utils-firebase";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -67,9 +67,32 @@ export const getProductById = async (req: Request, res: Response) => {
 export const updateProductById = async (req: Request, res: Response) => {
   try {
     const productId = req.params.productId;
+
+    const oldProduct = await Product.findById(productId);
+
+    const { name, ingredients, description, price } = req.body;
+
+    const file: Express.Multer.File | undefined = req.file;
+
+    let url;
+    let fileName;
+    if (file) {
+      fileName = `${
+        "Product" + "-" + Date.now() + path.extname(file.originalname)
+      }`;
+
+      url = await uploadFile(file, "products", fileName);
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
-      req.body,
+      {
+        name,
+        ingredients,
+        description,
+        price,
+        image: file ? { fileName: fileName, url: url } : oldProduct?.image,
+      },
       { new: true }
     );
     if (!updatedProduct) {
@@ -85,6 +108,8 @@ export const updateProductById = async (req: Request, res: Response) => {
 export const deleteProductById = async (req: Request, res: Response) => {
   try {
     const productId = req.params.productId;
+    const product = await Product.findById(productId);
+    if (product) await deleteFile("products", product.image.fileName);
     const deletedProduct = await Product.findByIdAndDelete(productId);
     if (!deletedProduct) {
       return res.status(404).json({ message: "Product not found" });

@@ -103,28 +103,53 @@ describe("Test a product", () => {
     await Product.deleteMany({ name: "nameTest3" });
   }, 10000);
 
-  test("edita un producto", async () => {
+  test("edita un producto con imagen", async () => {
     const { body } = await request(app).get("/products").send();
     const id = body[0]._id;
-    const { status } = await request(app)
+    const editResponse = await request(app)
       .put(`/products/${id}`)
-      .send({
-        name: "nameTest",
-        ingredients: ["new ingredients", "new ingredients2"],
-        image: "imagen.jpg",
-        description: "new descriptionTest",
-        price: 99,
-      });
+      .attach("image", `${__dirname}/tmp/image.jpg`)
+      .field("name", "nameTest")
+      .field("description", "new descriptionTest")
+      .field("price", 50)
+      .field("ingredients", ["new ingredients", "new ingredients2"]);
+
     const response = await request(app).get(`/products/${id}`).send();
 
-    expect(status).toBe(200);
+    expect(editResponse.status).toBe(200);
     expect(response.status).toBe(200);
     expect(response.body._id).toBe(body[0]._id);
     expect(response.body.description).toBe("new descriptionTest");
     expect(response.body.ingredients).toHaveLength(2);
     expect(response.body.name).toBe("nameTest");
     expect(response.body.image instanceof Object).toBe(true);
-    expect(response.body.price).toBe(99);
+    expect(response.body.price).toBe(50);
+
+    await deleteFile("products", response.body.image.fileName);
+  }, 10000);
+
+  test("edita un producto sin imagen y conserva la anterior", async () => {
+    const { body } = await request(app).get("/products").send();
+    const id = body[0]._id;
+    const holdProduct = await request(app).get(`/products/${id}`).send();
+    const editResponse = await request(app)
+      .put(`/products/${id}`)
+      .field("name", "nameTest")
+      .field("description", "new descriptionTest")
+      .field("price", 50)
+      .field("ingredients", ["new ingredients", "new ingredients2"]);
+
+    const response = await request(app).get(`/products/${id}`).send();
+
+    expect(editResponse.status).toBe(200);
+    expect(response.status).toBe(200);
+    expect(response.body._id).toBe(body[0]._id);
+    expect(response.body.description).toBe("new descriptionTest");
+    expect(response.body.ingredients).toHaveLength(2);
+    expect(response.body.name).toBe("nameTest");
+    expect(response.body.image instanceof Object).toBe(true);
+    expect(response.body.image.fileName).toBe(holdProduct.body.image.fileName);
+    expect(response.body.price).toBe(50);
   }, 10000);
 
   test("elimina un producto", async () => {

@@ -14,7 +14,7 @@ const router = express.Router();
 router.post("/:categoryId/products", upload.single("image"), createProduct); // Crear un nuevo producto
 router.get("/products", getAllProducts); // Obtener todos los productos
 router.get("/products/:productId", getProductById); // Obtener un producto por su ID
-router.put("/products/:productId", updateProductById); // Actualizar un producto por su ID
+router.put("/products/:productId", upload.single("image"), updateProductById); // Actualizar un producto por su ID
 router.delete("/products/:productId", deleteProductById); // Eliminar un producto por su ID
 
 export default router;
