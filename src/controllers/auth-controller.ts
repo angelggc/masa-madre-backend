@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { generateJWT } from "../utils/index";
+import { generateJWT } from "../utils/jwt";
 import { errorResponse } from "../utils/error-response";
 import User from "../models/user";
 import { compare } from "bcryptjs";
