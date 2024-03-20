@@ -12,10 +12,20 @@ import { authToken } from "../middlewares/auth-middleware";
 const router = express.Router();
 
 // Rutas para CRUD de productos
-router.post("/:categoryId/products", upload.single("image"), createProduct); // Crear un nuevo producto
-router.get("/products", authToken, getAllProducts); // Obtener todos los productos
+router.post(
+  "/:categoryId/products",
+  authToken,
+  upload.single("image"),
+  createProduct
+); // Crear un nuevo producto
+router.get("/products", getAllProducts); // Obtener todos los productos
 router.get("/products/:productId", getProductById); // Obtener un producto por su ID
-router.put("/products/:productId", upload.single("image"), updateProductById); // Actualizar un producto por su ID
-router.delete("/products/:productId", deleteProductById); // Eliminar un producto por su ID
+router.put(
+  "/products/:productId",
+  authToken,
+  upload.single("image"),
+  updateProductById
+); // Actualizar un producto por su ID
+router.delete("/products/:productId", authToken, deleteProductById); // Eliminar un producto por su ID
 
 export default router;

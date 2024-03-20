@@ -1,13 +1,13 @@
 import request from "supertest";
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { dbConnectTest } from "../config/db";
 import productRoutes from "../routes/product";
 import { Product } from "../models/product";
 import Category from "../models/category";
-import fs from "fs";
 import { deleteFile } from "../utils/utils-firebase";
+import User from "../models/user";
+import { generateJWT } from "../utils/jwt";
 
 const PORT = process.env.PORT || 3050;
 export const app = express();
@@ -20,6 +20,22 @@ export const server = app.listen(PORT, () => {
 });
 
 describe("Test a product", () => {
+  let token: string;
+  beforeAll(async () => {
+    await new User({
+      name: "userAdmin",
+      email: "user@admin.com",
+      password: "adminPassword",
+      token: "token",
+    }).save();
+    const users = await User.find();
+    token = generateJWT({ id: users[0].id });
+  });
+
+  afterAll(async () => {
+    await User.deleteMany({ name: "userAdmin" });
+  });
+
   beforeEach(async () => {
     await new Product({
       name: "nameTest",
@@ -44,7 +60,7 @@ describe("Test a product", () => {
     }).save();
 
     const result = await Product.find();
-    const id = result[0]._id.toString();
+    const id = result[0].id.toString();
 
     await new Category({
       name: "prueba",
@@ -61,19 +77,31 @@ describe("Test a product", () => {
   }, 10000);
 
   test("La ruta funciona", async () => {
-    const { status } = await request(app).get("/products").send();
+    const { status } = await request(app)
+      .get("/products")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
     expect(status).toBe(200);
   }, 10000);
 
   test("recibe datos", async () => {
-    const response = await request(app).get("/products").send();
+    const response = await request(app)
+      .get("/products")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
     expect(response.body).toBeInstanceOf(Array);
     expect(response.body).toHaveLength(2);
   }, 10000);
 
   test("recive un producto segun el id", async () => {
-    const { body } = await request(app).get("/products").send();
-    const response = await request(app).get(`/products/${body[0]._id}`).send();
+    const { body } = await request(app)
+      .get("/products")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
+    const response = await request(app)
+      .get(`/products/${body[0]._id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send();
 
     expect(response.status).toBe(200);
     expect(response.body._id).toBe(body[0]._id);
@@ -84,17 +112,21 @@ describe("Test a product", () => {
 
   test("crea un producto", async () => {
     const result = await Category.find();
-    const id = result[0]._id.toString();
+    const id = result[0].id.toString();
 
     const result2 = await request(app)
       .post(`/${id}/products`)
+      .set("Authorization", `Bearer ${token}`)
       .attach("image", `${__dirname}/tmp/image.jpg`)
       .field("name", "nameTest3")
       .field("description", "descriptionTest3")
       .field("price", 0)
       .field("ingredients", ["ingrediente1", "ingrediente2"]);
 
-    const response = await request(app).get("/products").send();
+    const response = await request(app)
+      .get("/products")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
     expect(result2.status).toBe(201);
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(3);
@@ -104,10 +136,14 @@ describe("Test a product", () => {
   }, 10000);
 
   test("edita un producto con imagen", async () => {
-    const { body } = await request(app).get("/products").send();
+    const { body } = await request(app)
+      .get("/products")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
     const id = body[0]._id;
     const editResponse = await request(app)
       .put(`/products/${id}`)
+      .set("Authorization", `Bearer ${token}`)
       .attach("image", `${__dirname}/tmp/image.jpg`)
       .field("name", "nameTest")
       .field("description", "new descriptionTest")
@@ -125,15 +161,23 @@ describe("Test a product", () => {
     expect(response.body.image instanceof Object).toBe(true);
     expect(response.body.price).toBe(50);
 
+    console.log(response.body.image.fileName);
     await deleteFile("products", response.body.image.fileName);
   }, 10000);
 
   test("edita un producto sin imagen y conserva la anterior", async () => {
-    const { body } = await request(app).get("/products").send();
+    const { body } = await request(app)
+      .get("/products")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
     const id = body[0]._id;
-    const holdProduct = await request(app).get(`/products/${id}`).send();
+    const holdProduct = await request(app)
+      .get(`/products/${id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send();
     const editResponse = await request(app)
       .put(`/products/${id}`)
+      .set("Authorization", `Bearer ${token}`)
       .field("name", "nameTest")
       .field("description", "new descriptionTest")
       .field("price", 50)
@@ -153,10 +197,19 @@ describe("Test a product", () => {
   }, 10000);
 
   test("elimina un producto", async () => {
-    const { body } = await request(app).get("/products").send();
+    const { body } = await request(app)
+      .get("/products")
+      .set("Authorization", `Bearer ${token}`)
+      .send();
     const id = body[0]._id;
-    const { status } = await request(app).delete(`/products/${id}`).send();
-    const response = await request(app).get(`/products/${id}`).send();
+    const { status } = await request(app)
+      .delete(`/products/${id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send();
+    const response = await request(app)
+      .get(`/products/${id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send();
 
     expect(status).toBe(200);
     expect(response.status).toBe(404);
