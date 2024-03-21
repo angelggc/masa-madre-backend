@@ -1,41 +1,38 @@
 import { Request, Response } from "express";
-import { Product, IProduct } from "../models/product";
-import Category from "../models/category";
-// Controlador para crear un nuevo producto
+import { Product } from "../models/product";
+import { IProduct } from "../entities/product";
+import path from "path";
+import { deleteFile, uploadFile } from "../utils/utils-firebase";
+
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    // Crear el nuevo producto
-    const newProduct: IProduct = new Product(req.body);
+    const { name, ingredients, description, price } = req.body;
+
+    const file: Express.Multer.File | undefined = req.file;
+
+    if (!file) {
+      return res.status(400).json({ message: "Falta archivo de imagen" });
+    }
+
+    const fileName = `${
+      "Product" + "-" + Date.now() + path.extname(file.originalname)
+    }`;
+
+    const url = await uploadFile(file, "products", fileName);
+
+    const newProduct: IProduct = new Product(<IProduct>{
+      name,
+      ingredients,
+      description,
+      price,
+      image: {
+        fileName,
+        url,
+      },
+    });
+
     const savedProduct = await newProduct.save();
 
-    // Obtener el ID de la categoría desde la solicitud (por ejemplo, req.body.categoryId)
-    const categoryId = req.params.categoryId;
-
-    // Verificar si se proporcionó un ID de categoría
-    if (!categoryId) {
-      return res.status(400).json({ message: "CategoryId is required" });
-    }
-
-    // Buscar la categoría por su ID
-    const category = await Category.findById(categoryId);
-
-    // Verificar si la categoría existe
-    if (!category) {
-      return res.status(404).json({ message: "Category not found" });
-    }
-
-    // Verificar si la propiedad products es un array
-    if (!Array.isArray(category.products)) {
-      category.products = []; // Inicializar la propiedad products si no es un array
-    }
-
-    // Agregar el ID del nuevo producto al array de productos de la categoría
-    category.products.push(savedProduct._id);
-
-    // Guardar la categoría actualizada en la base de datos
-    await category.save();
-
-    // Enviar la respuesta
     res.status(201).json(savedProduct);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -70,9 +67,32 @@ export const getProductById = async (req: Request, res: Response) => {
 export const updateProductById = async (req: Request, res: Response) => {
   try {
     const productId = req.params.productId;
+
+    const oldProduct = await Product.findById(productId);
+
+    const { name, ingredients, description, price } = req.body;
+
+    const file: Express.Multer.File | undefined = req.file;
+
+    let url;
+    let fileName;
+    if (file) {
+      fileName = `${
+        "Product" + "-" + Date.now() + path.extname(file.originalname)
+      }`;
+
+      url = await uploadFile(file, "products", fileName);
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
-      req.body,
+      {
+        name,
+        ingredients,
+        description,
+        price,
+        image: file ? { fileName: fileName, url: url } : oldProduct?.image,
+      },
       { new: true }
     );
     if (!updatedProduct) {
@@ -88,6 +108,8 @@ export const updateProductById = async (req: Request, res: Response) => {
 export const deleteProductById = async (req: Request, res: Response) => {
   try {
     const productId = req.params.productId;
+    const product = await Product.findById(productId);
+    if (product) await deleteFile("products", product.image.fileName);
     const deletedProduct = await Product.findByIdAndDelete(productId);
     if (!deletedProduct) {
       return res.status(404).json({ message: "Product not found" });
